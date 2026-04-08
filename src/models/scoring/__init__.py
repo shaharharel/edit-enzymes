@@ -6,3 +6,10 @@ from src.models.scoring.packing_scorer import PackingScorerMLP
 from src.models.scoring.desolvation_scorer import DesolvationScorerMLP
 from src.models.scoring.activity_scorer import ActivityScorerMLP
 from src.models.scoring.multi_objective import MultiObjectiveScorer
+from src.models.scoring.pross_scorer import (
+    PSSMScorer,
+    PROSSDeltaGScorer,
+    MutationCompatibilityScorer,
+    PROSSCombinedScorer,
+    PROSSScoreComponents,
+)
