@@ -1,0 +1,61 @@
+pdb_id: 2RKX
+fold_family: TIM_barrel
+ec_number: 4.2.1.-
+residues:
+- type: GLU
+  role: general_base
+  position_index: 101
+  atoms:
+    N:
+    - 80.269
+    - 12.209
+    - 10.208
+    CA:
+    - 79.947
+    - 13.101
+    - 9.099
+    C:
+    - 80.657
+    - 12.619
+    - 7.836
+    O:
+    - 81.879
+    - 12.465
+    - 7.829
+    OE1:
+    - 81.456
+    - 17.059
+    - 9.965
+    OE2:
+    - 79.718
+    - 17.91
+    - 8.978
+- type: TRP
+  role: substrate_binding
+  position_index: 50
+  atoms:
+    N:
+    - 86.723
+    - 17.776
+    - 12.639
+    CA:
+    - 87.035
+    - 17.467
+    - 11.269
+    C:
+    - 88.544
+    - 17.253
+    - 11.095
+    O:
+    - 89.328
+    - 18.196
+    - 11.211
+    NE1:
+    - 87.437
+    - 17.999
+    - 6.724
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 8.6

@@ -1,0 +1,65 @@
+pdb_id: 1HEW
+fold_family: lysozyme
+ec_number: 3.2.1.17
+residues:
+- type: GLU
+  role: general_acid
+  position_index: 35
+  atoms:
+    N:
+    - 4.07
+    - 24.294
+    - 14.287
+    CA:
+    - 4.773
+    - 23.503
+    - 15.304
+    C:
+    - 5.504
+    - 22.301
+    - 14.754
+    O:
+    - 6.674
+    - 22.101
+    - 15.131
+    OE1:
+    - 5.546
+    - 24.201
+    - 18.417
+    OE2:
+    - 3.979
+    - 25.666
+    - 18.907
+- type: ASP
+  role: nucleophile
+  position_index: 52
+  atoms:
+    N:
+    - 10.11
+    - 18.284
+    - 22.809
+    CA:
+    - 8.743
+    - 18.554
+    - 22.306
+    C:
+    - 8.371
+    - 17.378
+    - 21.383
+    O:
+    - 9.215
+    - 17.006
+    - 20.56
+    OD1:
+    - 8.581
+    - 21.166
+    - 23.709
+    OD2:
+    - 9.987
+    - 21.797
+    - 22.165
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 9.45

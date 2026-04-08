@@ -1,0 +1,97 @@
+pdb_id: 1POP
+fold_family: papain_like
+ec_number: 3.4.22.2
+residues:
+- type: CYS
+  role: nucleophile
+  position_index: 25
+  atoms:
+    N:
+    - 28.54
+    - 74.041
+    - 21.173
+    CA:
+    - 29.138
+    - 73.067
+    - 20.247
+    C:
+    - 28.495
+    - 73.047
+    - 18.867
+    O:
+    - 29.162
+    - 72.875
+    - 17.845
+    SG:
+    - 27.398
+    - 71.142
+    - 21.183
+- type: HIS
+  role: general_base
+  position_index: 159
+  atoms:
+    N:
+    - 25.765
+    - 66.192
+    - 21.634
+    CA:
+    - 26.928
+    - 67.052
+    - 21.352
+    C:
+    - 27.14
+    - 67.091
+    - 19.848
+    O:
+    - 26.9
+    - 66.05
+    - 19.235
+    ND1:
+    - 29.687
+    - 68.392
+    - 22.433
+    NE2:
+    - 31.518
+    - 67.557
+    - 21.711
+- type: ASN
+  role: oxyanion_hole
+  position_index: 175
+  atoms:
+    N:
+    - 36.842
+    - 68.033
+    - 17.665
+    CA:
+    - 35.953
+    - 68.426
+    - 18.736
+    C:
+    - 36.328
+    - 69.829
+    - 19.219
+    O:
+    - 37.451
+    - 70.271
+    - 18.953
+    OD1:
+    - 34.006
+    - 68.043
+    - 20.824
+    ND2:
+    - 35.439
+    - 66.859
+    - 22.044
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 6.5
+- pair:
+  - 0
+  - 2
+  distance: 8.38
+- pair:
+  - 1
+  - 2
+  distance: 9.5

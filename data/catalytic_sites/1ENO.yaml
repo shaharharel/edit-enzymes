@@ -1,0 +1,49 @@
+pdb_id: 1ENO
+fold_family: TIM_barrel
+ec_number: 4.2.1.11
+residues:
+- type: GLU
+  role: general_base
+  position_index: 168
+  atoms:
+    N:
+    - 12.096
+    - 3.609
+    - 36.093
+    CA:
+    - 12.892
+    - 3.843
+    - 34.939
+    C:
+    - 14.021
+    - 4.795
+    - 35.223
+    O:
+    - 15.155
+    - 4.561
+    - 34.844
+- type: GLU
+  role: general_acid
+  position_index: 211
+  atoms:
+    N:
+    - 5.081
+    - 1.063
+    - 47.325
+    CA:
+    - 5.537
+    - -0.302
+    - 47.39
+    C:
+    - 6.873
+    - -0.461
+    - 46.697
+    O:
+    - 7.766
+    - -1.145
+    - 47.171
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 15.04

@@ -1,0 +1,65 @@
+pdb_id: 3LZM
+fold_family: lysozyme
+ec_number: 3.2.1.17
+residues:
+- type: GLU
+  role: general_acid
+  position_index: 11
+  atoms:
+    N:
+    - 43.17
+    - 12.221
+    - 10.172
+    CA:
+    - 43.005
+    - 13.355
+    - 11.067
+    C:
+    - 44.281
+    - 13.809
+    - 11.755
+    O:
+    - 44.366
+    - 14.943
+    - 12.192
+    OE1:
+    - 38.823
+    - 13.825
+    - 10.454
+    OE2:
+    - 40.411
+    - 15.072
+    - 11.28
+- type: ASP
+  role: nucleophile
+  position_index: 20
+  atoms:
+    N:
+    - 41.178
+    - 23.536
+    - 12.426
+    CA:
+    - 41.046
+    - 22.527
+    - 11.42
+    C:
+    - 41.15
+    - 23.152
+    - 10.022
+    O:
+    - 41.398
+    - 24.345
+    - 9.867
+    OD1:
+    - 37.42
+    - 21.572
+    - 11.385
+    OD2:
+    - 38.539
+    - 23.368
+    - 10.8
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 9.39

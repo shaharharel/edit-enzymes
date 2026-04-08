@@ -1,0 +1,49 @@
+pdb_id: 1TPH
+fold_family: TIM_barrel
+ec_number: 4.2.1.20
+residues:
+- type: LYS
+  role: substrate_binding
+  position_index: 87
+  atoms:
+    N:
+    - 5.425
+    - 32.092
+    - 5.25
+    CA:
+    - 6.489
+    - 32.271
+    - 4.269
+    C:
+    - 7.895
+    - 32.103
+    - 4.837
+    O:
+    - 8.833
+    - 32.62
+    - 4.138
+- type: ASP
+  role: general_acid
+  position_index: 60
+  atoms:
+    N:
+    - 16.547
+    - 34.91
+    - 4.386
+    CA:
+    - 15.556
+    - 33.888
+    - 4.822
+    C:
+    - 15.165
+    - 34.081
+    - 6.25
+    O:
+    - 15.814
+    - 34.736
+    - 7.071
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 9.23

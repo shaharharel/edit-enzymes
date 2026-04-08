@@ -1,0 +1,65 @@
+pdb_id: 1LDG
+fold_family: rossmann
+ec_number: 1.1.1.27
+residues:
+- type: HIS
+  role: general_acid
+  position_index: 195
+  atoms:
+    N:
+    - 17.642
+    - 20.054
+    - 36.447
+    CA:
+    - 18.547
+    - 20.339
+    - 37.562
+    C:
+    - 18.393
+    - 21.829
+    - 37.872
+    O:
+    - 18.987
+    - 22.673
+    - 37.2
+    ND1:
+    - 21.127
+    - 19.83
+    - 39.436
+    NE2:
+    - 22.586
+    - 21.397
+    - 39.404
+- type: ARG
+  role: substrate_binding
+  position_index: 171
+  atoms:
+    N:
+    - 22.539
+    - 13.994
+    - 47.363
+    CA:
+    - 22.19
+    - 14.829
+    - 48.499
+    C:
+    - 20.977
+    - 14.283
+    - 49.235
+    O:
+    - 21.014
+    - 14.128
+    - 50.458
+    NH1:
+    - 23.364
+    - 20.007
+    - 44.642
+    NH2:
+    - 25.605
+    - 20.169
+    - 45.136
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 12.78

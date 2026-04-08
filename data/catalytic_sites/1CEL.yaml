@@ -1,0 +1,49 @@
+pdb_id: 1CEL
+fold_family: TIM_barrel
+ec_number: 3.2.1.4
+residues:
+- type: GLU
+  role: nucleophile
+  position_index: 139
+  atoms:
+    N:
+    - 15.487
+    - 68.266
+    - 64.784
+    CA:
+    - 15.62
+    - 67.74
+    - 63.439
+    C:
+    - 16.927
+    - 68.03
+    - 62.731
+    O:
+    - 17.178
+    - 67.465
+    - 61.669
+- type: GLU
+  role: general_acid
+  position_index: 228
+  atoms:
+    N:
+    - 32.906
+    - 55.032
+    - 67.8
+    CA:
+    - 32.476
+    - 53.873
+    - 66.967
+    C:
+    - 33.639
+    - 53.047
+    - 66.439
+    O:
+    - 34.308
+    - 53.457
+    - 65.488
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 22.11

@@ -1,0 +1,77 @@
+pdb_id: 1PII
+fold_family: TIM_barrel
+ec_number: 3.1.8.1
+residues:
+- type: HIS
+  role: metal_ligand
+  position_index: 55
+  atoms:
+    N:
+    - 34.103
+    - 15.783
+    - 19.976
+    CA:
+    - 34.542
+    - 15.474
+    - 21.313
+    C:
+    - 36.045
+    - 15.595
+    - 21.323
+    O:
+    - 36.662
+    - 15.062
+    - 20.409
+- type: HIS
+  role: metal_ligand
+  position_index: 57
+  atoms:
+    N:
+    - 38.003
+    - 14.939
+    - 24.315
+    CA:
+    - 38.624
+    - 13.913
+    - 25.092
+    C:
+    - 37.502
+    - 13.09
+    - 25.652
+    O:
+    - 36.317
+    - 13.422
+    - 25.532
+- type: ASP
+  role: general_base
+  position_index: 301
+  atoms:
+    N:
+    - 48.445
+    - 16.465
+    - -7.525
+    CA:
+    - 48.218
+    - 17.77
+    - -6.971
+    C:
+    - 46.784
+    - 18.205
+    - -7.063
+    O:
+    - 46.422
+    - 19.117
+    - -6.334
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 5.78
+- pair:
+  - 0
+  - 2
+  distance: 31.5
+- pair:
+  - 1
+  - 2
+  distance: 33.69

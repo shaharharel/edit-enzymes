@@ -1,0 +1,24 @@
+pdb_id: 2PKA
+fold_family: protein_kinase
+ec_number: 2.7.11.11
+residues:
+- type: LYS
+  role: substrate_binding
+  position_index: 72
+  atoms:
+    N:
+    - 34.988
+    - 96.362
+    - 82.121
+    CA:
+    - 33.53
+    - 96.301
+    - 82.033
+    C:
+    - 33.104
+    - 95.479
+    - 80.841
+    O:
+    - 33.195
+    - 95.974
+    - 79.692

@@ -1,0 +1,97 @@
+pdb_id: 1ACB
+fold_family: serine_protease
+ec_number: 3.4.21.1
+residues:
+- type: HIS
+  role: general_base
+  position_index: 57
+  atoms:
+    N:
+    - 0.907
+    - 9.389
+    - 15.811
+    CA:
+    - 1.586
+    - 10.52
+    - 15.243
+    C:
+    - 2.393
+    - 10.202
+    - 13.999
+    O:
+    - 2.939
+    - 11.084
+    - 13.365
+    ND1:
+    - 4.178
+    - 9.637
+    - 17.469
+    NE2:
+    - 5.905
+    - 9.764
+    - 16.089
+- type: ASP
+  role: general_acid
+  position_index: 102
+  atoms:
+    N:
+    - -1.267
+    - 7.477
+    - 21.801
+    CA:
+    - -0.574
+    - 7.488
+    - 20.528
+    C:
+    - -0.483
+    - 6.134
+    - 19.921
+    O:
+    - 0.571
+    - 5.536
+    - 19.947
+    OD1:
+    - 1.02
+    - 8.722
+    - 18.524
+    OD2:
+    - 2.842
+    - 8.589
+    - 19.786
+- type: SER
+  role: nucleophile
+  position_index: 195
+  atoms:
+    N:
+    - 10.037
+    - 5.771
+    - 15.854
+    CA:
+    - 8.615
+    - 5.893
+    - 16.271
+    C:
+    - 7.763
+    - 4.799
+    - 15.718
+    O:
+    - 8.0
+    - 4.323
+    - 14.604
+    OG:
+    - 8.32
+    - 8.218
+    - 16.781
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 6.46
+- pair:
+  - 0
+  - 2
+  distance: 8.48
+- pair:
+  - 1
+  - 2
+  distance: 10.25

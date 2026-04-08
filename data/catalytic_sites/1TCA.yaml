@@ -1,0 +1,97 @@
+pdb_id: 1TCA
+fold_family: alpha_beta_hydrolase
+ec_number: 3.1.1.3
+residues:
+- type: SER
+  role: nucleophile
+  position_index: 105
+  atoms:
+    N:
+    - -8.424
+    - 22.313
+    - 13.475
+    CA:
+    - -8.136
+    - 21.862
+    - 14.832
+    C:
+    - -9.268
+    - 20.966
+    - 15.394
+    O:
+    - -9.669
+    - 20.008
+    - 14.737
+    OG:
+    - -7.32
+    - 22.766
+    - 16.938
+- type: HIS
+  role: general_base
+  position_index: 224
+  atoms:
+    N:
+    - 0.477
+    - 25.559
+    - 13.397
+    CA:
+    - -0.921
+    - 25.162
+    - 13.569
+    C:
+    - -1.88
+    - 26.075
+    - 12.788
+    O:
+    - -2.807
+    - 25.591
+    - 12.123
+    ND1:
+    - -2.851
+    - 23.212
+    - 15.037
+    NE2:
+    - -4.541
+    - 23.888
+    - 16.073
+- type: ASP
+  role: general_acid
+  position_index: 187
+  atoms:
+    N:
+    - 3.721
+    - 21.285
+    - 13.689
+    CA:
+    - 2.59
+    - 21.835
+    - 14.434
+    C:
+    - 3.008
+    - 21.995
+    - 15.906
+    O:
+    - 3.491
+    - 21.052
+    - 16.516
+    OD1:
+    - 0.02
+    - 22.124
+    - 15.816
+    OD2:
+    - -0.895
+    - 21.386
+    - 13.979
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 8.03
+- pair:
+  - 0
+  - 2
+  distance: 10.73
+- pair:
+  - 1
+  - 2
+  distance: 4.91

@@ -1,0 +1,97 @@
+pdb_id: 1EAI
+fold_family: serine_protease
+ec_number: 3.4.21.36
+residues:
+- type: HIS
+  role: general_base
+  position_index: 57
+  atoms:
+    N:
+    - 68.701
+    - 13.079
+    - 83.026
+    CA:
+    - 67.797
+    - 11.96
+    - 83.046
+    C:
+    - 66.479
+    - 12.222
+    - 82.315
+    O:
+    - 65.639
+    - 11.335
+    - 82.09
+    ND1:
+    - 67.07
+    - 13.272
+    - 86.263
+    NE2:
+    - 64.926
+    - 13.093
+    - 86.505
+- type: ASP
+  role: general_acid
+  position_index: 102
+  atoms:
+    N:
+    - 73.827
+    - 15.938
+    - 86.838
+    CA:
+    - 72.519
+    - 15.832
+    - 86.216
+    C:
+    - 72.092
+    - 17.102
+    - 85.522
+    O:
+    - 71.155
+    - 17.803
+    - 85.966
+    OD1:
+    - 70.112
+    - 14.464
+    - 85.654
+    OD2:
+    - 69.356
+    - 14.561
+    - 87.681
+- type: SER
+  role: nucleophile
+  position_index: 195
+  atoms:
+    N:
+    - 60.791
+    - 16.938
+    - 87.811
+    CA:
+    - 62.169
+    - 16.916
+    - 87.308
+    C:
+    - 62.538
+    - 18.009
+    - 86.255
+    O:
+    - 61.741
+    - 18.253
+    - 85.354
+    OG:
+    - 62.771
+    - 14.571
+    - 87.219
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 6.88
+- pair:
+  - 0
+  - 2
+  distance: 8.63
+- pair:
+  - 1
+  - 2
+  distance: 10.46

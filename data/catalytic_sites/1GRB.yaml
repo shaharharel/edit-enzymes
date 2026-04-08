@@ -1,0 +1,93 @@
+pdb_id: 1GRB
+fold_family: rossmann
+ec_number: 1.8.1.7
+residues:
+- type: CYS
+  role: nucleophile
+  position_index: 58
+  atoms:
+    N:
+    - 61.736
+    - 47.873
+    - 16.673
+    CA:
+    - 62.696
+    - 46.787
+    - 16.502
+    C:
+    - 62.43
+    - 45.951
+    - 15.24
+    O:
+    - 63.308
+    - 45.686
+    - 14.408
+    SG:
+    - 63.588
+    - 44.318
+    - 17.614
+- type: CYS
+  role: nucleophile
+  position_index: 63
+  atoms:
+    N:
+    - 66.17
+    - 47.409
+    - 14.568
+    CA:
+    - 67.056
+    - 46.287
+    - 14.784
+    C:
+    - 67.064
+    - 45.276
+    - 13.661
+    O:
+    - 68.089
+    - 45.011
+    - 13.052
+    SG:
+    - 66.419
+    - 46.741
+    - 17.494
+- type: HIS
+  role: general_acid
+  position_index: 467
+  atoms:
+    N:
+    - 92.451
+    - 29.433
+    - 21.171
+    CA:
+    - 93.352
+    - 29.733
+    - 20.059
+    C:
+    - 93.005
+    - 28.959
+    - 18.808
+    O:
+    - 92.672
+    - 27.777
+    - 18.87
+    ND1:
+    - 95.99
+    - 31.173
+    - 19.395
+    NE2:
+    - 97.475
+    - 30.063
+    - 18.196
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 4.71
+- pair:
+  - 0
+  - 2
+  distance: 35.26
+- pair:
+  - 1
+  - 2
+  distance: 31.52

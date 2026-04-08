@@ -1,0 +1,93 @@
+pdb_id: 3ADH
+fold_family: rossmann
+ec_number: 1.1.1.1
+residues:
+- type: CYS
+  role: metal_ligand
+  position_index: 46
+  atoms:
+    N:
+    - 7.714
+    - 10.427
+    - 18.771
+    CA:
+    - 7.416
+    - 10.287
+    - 20.181
+    C:
+    - 6.983
+    - 8.863
+    - 20.557
+    O:
+    - 6.251
+    - 8.225
+    - 19.759
+    SG:
+    - 5.79
+    - 11.45
+    - 22.35
+- type: HIS
+  role: metal_ligand
+  position_index: 67
+  atoms:
+    N:
+    - 1.877
+    - 13.574
+    - 16.522
+    CA:
+    - 1.325
+    - 14.696
+    - 17.315
+    C:
+    - 2.376
+    - 15.741
+    - 17.701
+    O:
+    - 2.02
+    - 16.879
+    - 18.122
+    ND1:
+    - 1.782
+    - 12.127
+    - 19.402
+    NE2:
+    - 2.83
+    - 12.75
+    - 21.06
+- type: CYS
+  role: metal_ligand
+  position_index: 174
+  atoms:
+    N:
+    - 5.146
+    - 18.836
+    - 22.036
+    CA:
+    - 5.086
+    - 17.716
+    - 22.965
+    C:
+    - 6.287
+    - 17.538
+    - 23.897
+    O:
+    - 6.243
+    - 18.044
+    - 25.042
+    SG:
+    - 4.05
+    - 15.06
+    - 23.26
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 8.05
+- pair:
+  - 0
+  - 2
+  distance: 8.27
+- pair:
+  - 1
+  - 2
+  distance: 7.43

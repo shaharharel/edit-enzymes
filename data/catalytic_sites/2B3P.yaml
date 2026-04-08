@@ -1,0 +1,40 @@
+pdb_id: 2B3P
+fold_family: beta_barrel
+ec_number: N/A
+residues:
+- type: TYR
+  role: chromophore
+  position_index: 66
+  atoms:
+    OH:
+    - 51.125
+    - 1.221
+    - -1.326
+- type: GLU
+  role: general_base
+  position_index: 222
+  atoms:
+    N:
+    - 57.323
+    - 4.392
+    - -8.184
+    CA:
+    - 55.937
+    - 4.139
+    - -7.837
+    C:
+    - 54.988
+    - 4.309
+    - -9.012
+    O:
+    - 55.187
+    - 5.171
+    - -9.868
+    OE1:
+    - 54.781
+    - 4.828
+    - -3.796
+    OE2:
+    - 53.203
+    - 6.214
+    - -4.453

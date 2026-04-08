@@ -1,0 +1,93 @@
+pdb_id: 2CPP
+fold_family: cytochrome_p450
+ec_number: 1.14.15.1
+residues:
+- type: CYS
+  role: metal_ligand
+  position_index: 357
+  atoms:
+    N:
+    - 45.96
+    - 44.288
+    - 4.769
+    CA:
+    - 46.473
+    - 45.46
+    - 5.429
+    C:
+    - 46.475
+    - 46.66
+    - 4.534
+    O:
+    - 47.18
+    - 46.671
+    - 3.513
+    SG:
+    - 48.749
+    - 46.536
+    - 6.659
+- type: ASP
+  role: general_acid
+  position_index: 251
+  atoms:
+    N:
+    - 52.726
+    - 49.322
+    - 16.888
+    CA:
+    - 53.087
+    - 47.952
+    - 17.134
+    C:
+    - 53.477
+    - 47.103
+    - 15.993
+    O:
+    - 52.993
+    - 45.881
+    - 16.108
+    OD1:
+    - 52.434
+    - 45.098
+    - 19.176
+    OD2:
+    - 54.107
+    - 46.455
+    - 19.304
+- type: THR
+  role: substrate_binding
+  position_index: 252
+  atoms:
+    N:
+    - 53.611
+    - 47.48
+    - 14.771
+    CA:
+    - 53.856
+    - 46.589
+    - 13.65
+    C:
+    - 55.266
+    - 46.729
+    - 13.036
+    O:
+    - 56.097
+    - 45.869
+    - 13.312
+    OG1:
+    - 52.709
+    - 48.107
+    - 12.133
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 13.67
+- pair:
+  - 0
+  - 2
+  distance: 11.11
+- pair:
+  - 1
+  - 2
+  distance: 3.82

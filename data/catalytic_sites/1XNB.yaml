@@ -1,0 +1,65 @@
+pdb_id: 1XNB
+fold_family: TIM_barrel
+ec_number: 3.2.1.8
+residues:
+- type: GLU
+  role: nucleophile
+  position_index: 78
+  atoms:
+    N:
+    - 26.327
+    - 24.519
+    - 35.57
+    CA:
+    - 27.506
+    - 24.631
+    - 34.705
+    C:
+    - 26.954
+    - 24.323
+    - 33.311
+    O:
+    - 26.373
+    - 23.249
+    - 33.107
+    OE1:
+    - 30.382
+    - 21.402
+    - 35.04
+    OE2:
+    - 32.047
+    - 22.805
+    - 34.944
+- type: GLU
+  role: general_acid
+  position_index: 172
+  atoms:
+    N:
+    - 38.518
+    - 22.782
+    - 27.292
+    CA:
+    - 38.475
+    - 21.975
+    - 28.515
+    C:
+    - 39.09
+    - 20.622
+    - 28.188
+    O:
+    - 38.842
+    - 20.076
+    - 27.116
+    OE1:
+    - 34.777
+    - 21.421
+    - 30.635
+    OE2:
+    - 35.662
+    - 19.86
+    - 31.898
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 12.87

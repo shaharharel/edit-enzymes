@@ -1,0 +1,93 @@
+pdb_id: 1BTL
+fold_family: alpha_beta
+ec_number: 3.5.2.6
+residues:
+- type: SER
+  role: nucleophile
+  position_index: 70
+  atoms:
+    N:
+    - 10.407
+    - 4.763
+    - 35.905
+    CA:
+    - 9.068
+    - 4.77
+    - 36.503
+    C:
+    - 7.98
+    - 4.031
+    - 35.72
+    O:
+    - 6.873
+    - 3.891
+    - 36.268
+    OG:
+    - 9.468
+    - 6.772
+    - 37.805
+- type: LYS
+  role: general_base
+  position_index: 73
+  atoms:
+    N:
+    - 5.901
+    - 1.307
+    - 37.775
+    CA:
+    - 4.863
+    - 1.62
+    - 38.784
+    C:
+    - 3.442
+    - 1.163
+    - 38.418
+    O:
+    - 2.623
+    - 0.857
+    - 39.313
+    NZ:
+    - 8.398
+    - 6.538
+    - 40.489
+- type: GLU
+  role: oxyanion_hole
+  position_index: 166
+  atoms:
+    N:
+    - 13.846
+    - 2.496
+    - 44.776
+    CA:
+    - 14.125
+    - 3.889
+    - 44.353
+    C:
+    - 15.141
+    - 4.591
+    - 45.262
+    O:
+    - 15.049
+    - 4.446
+    - 46.489
+    OE1:
+    - 13.166
+    - 5.553
+    - 41.654
+    OE2:
+    - 11.273
+    - 4.756
+    - 41.007
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 5.73
+- pair:
+  - 0
+  - 2
+  distance: 9.38
+- pair:
+  - 1
+  - 2
+  distance: 11.04

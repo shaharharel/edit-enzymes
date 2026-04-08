@@ -1,0 +1,12 @@
+pdb_id: 1AIM
+fold_family: caspase
+ec_number: 3.4.22.36
+residues:
+- type: CYS
+  role: nucleophile
+  position_index: 285
+  atoms:
+    O:
+    - 92.539
+    - 8.231
+    - -17.027

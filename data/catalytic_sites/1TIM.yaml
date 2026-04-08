@@ -1,0 +1,97 @@
+pdb_id: 1TIM
+fold_family: TIM_barrel
+ec_number: 5.3.1.1
+residues:
+- type: LYS
+  role: substrate_binding
+  position_index: 13
+  atoms:
+    N:
+    - 47.474
+    - 38.468
+    - 6.387
+    CA:
+    - 46.563
+    - 39.437
+    - 6.985
+    C:
+    - 46.986
+    - 40.893
+    - 6.796
+    O:
+    - 47.581
+    - 41.248
+    - 5.773
+    NZ:
+    - 43.505
+    - 35.531
+    - 10.774
+- type: HIS
+  role: general_base
+  position_index: 95
+  atoms:
+    N:
+    - 36.239
+    - 34.528
+    - 3.738
+    CA:
+    - 36.867
+    - 34.38
+    - 5.062
+    C:
+    - 35.945
+    - 34.806
+    - 6.221
+    O:
+    - 35.502
+    - 35.956
+    - 6.259
+    ND1:
+    - 38.578
+    - 34.9
+    - 7.64
+    NE2:
+    - 40.674
+    - 34.213
+    - 7.535
+- type: GLU
+  role: general_base
+  position_index: 165
+  atoms:
+    N:
+    - 36.472
+    - 26.37
+    - 8.223
+    CA:
+    - 36.723
+    - 27.113
+    - 9.457
+    C:
+    - 35.745
+    - 26.943
+    - 10.615
+    O:
+    - 34.538
+    - 27.2
+    - 10.485
+    OE1:
+    - 37.241
+    - 31.105
+    - 8.3
+    OE2:
+    - 39.493
+    - 30.862
+    - 8.419
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 11.1
+- pair:
+  - 0
+  - 2
+  distance: 15.96
+- pair:
+  - 1
+  - 2
+  distance: 8.49

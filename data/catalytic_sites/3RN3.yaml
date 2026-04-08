@@ -1,0 +1,97 @@
+pdb_id: 3RN3
+fold_family: rnase
+ec_number: 3.1.27.5
+residues:
+- type: HIS
+  role: general_base
+  position_index: 12
+  atoms:
+    N:
+    - 25.606
+    - 18.943
+    - 12.218
+    CA:
+    - 26.656
+    - 18.841
+    - 13.217
+    C:
+    - 26.353
+    - 19.606
+    - 14.492
+    O:
+    - 27.311
+    - 19.421
+    - 15.325
+    ND1:
+    - 28.839
+    - 17.288
+    - 11.512
+    NE2:
+    - 28.992
+    - 17.852
+    - 9.413
+- type: HIS
+  role: general_acid
+  position_index: 119
+  atoms:
+    N:
+    - 31.745
+    - 22.7
+    - 6.552
+    CA:
+    - 32.104
+    - 21.252
+    - 6.486
+    C:
+    - 32.851
+    - 20.924
+    - 7.794
+    O:
+    - 33.631
+    - 21.754
+    - 8.282
+    ND1:
+    - 33.608
+    - 18.42
+    - 5.049
+    NE2:
+    - 35.817
+    - 18.554
+    - 5.556
+- type: LYS
+  role: oxyanion_hole
+  position_index: 41
+  atoms:
+    N:
+    - 24.296
+    - 7.444
+    - 6.264
+    CA:
+    - 25.63
+    - 8.103
+    - 6.283
+    C:
+    - 26.543
+    - 7.305
+    - 7.216
+    O:
+    - 26.106
+    - 7.047
+    - 8.346
+    NZ:
+    - 26.355
+    - 13.23
+    - 8.33
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 8.99
+- pair:
+  - 0
+  - 2
+  distance: 12.82
+- pair:
+  - 1
+  - 2
+  distance: 14.66

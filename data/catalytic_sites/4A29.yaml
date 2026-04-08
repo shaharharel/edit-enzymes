@@ -1,0 +1,53 @@
+pdb_id: 4A29
+fold_family: TIM_barrel
+ec_number: 4.1.2.-
+residues:
+- type: LYS
+  role: nucleophile
+  position_index: 210
+  atoms:
+    N:
+    - -12.79
+    - 19.85
+    - -9.692
+    CA:
+    - -14.158
+    - 19.317
+    - -9.855
+    C:
+    - -15.099
+    - 20.256
+    - -9.139
+    O:
+    - -14.877
+    - 20.56
+    - -7.948
+    NZ:
+    - -17.408
+    - 14.557
+    - -8.575
+- type: TYR
+  role: general_acid
+  position_index: 51
+  atoms:
+    N:
+    - -19.917
+    - 17.917
+    - -17.706
+    CA:
+    - -20.529
+    - 16.696
+    - -17.192
+    C:
+    - -21.966
+    - 16.567
+    - -17.673
+    O:
+    - -22.75
+    - 17.517
+    - -17.545
+pairwise_distances:
+- pair:
+  - 0
+  - 1
+  distance: 10.06
