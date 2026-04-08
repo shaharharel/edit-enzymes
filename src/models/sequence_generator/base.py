@@ -77,8 +77,13 @@ class AbstractSequenceGenerator(pl.LightningModule, ABC):
         """
         ...
 
+    def _unbatch(self, batch):
+        """Squeeze batch dimension when batch_size=1."""
+        return {k: v.squeeze(0) for k, v in batch.items()}
+
     def training_step(self, batch, batch_idx):
         """Cross-entropy loss on non-fixed positions."""
+        batch = self._unbatch(batch)
         graph = ProteinGraph(
             node_features=batch['node_features'],
             edge_index=batch['edge_index'],
@@ -110,6 +115,7 @@ class AbstractSequenceGenerator(pl.LightningModule, ABC):
 
     def validation_step(self, batch, batch_idx):
         """Compute sequence recovery rate."""
+        batch = self._unbatch(batch)
         graph = ProteinGraph(
             node_features=batch['node_features'],
             edge_index=batch['edge_index'],

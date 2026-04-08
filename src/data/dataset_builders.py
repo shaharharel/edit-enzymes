@@ -122,27 +122,29 @@ class SequenceDesignDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
         from src.utils.protein_constants import AA_1_INDEX, NUM_AA
+        from src.models.sequence_generator.graph_features import backbone_to_graph_features
 
         bb = self.backbones[idx]
         L = min(bb.length, self.max_length)
 
-        # Build graph
-        graph = bb.to_graph(k=min(30, L - 1))
+        # Build enhanced graph (46 node features, 17 edge features)
+        graph = backbone_to_graph_features(bb, k=min(30, L - 1))
 
-        # Encode sequence as indices
-        seq_indices = np.zeros(self.max_length, dtype=np.int64)
+        # Encode sequence as indices (match graph size, no padding)
+        seq_indices = np.zeros(L, dtype=np.int64)
         for i, aa in enumerate(bb.sequence[:L]):
             seq_indices[i] = AA_1_INDEX.get(aa, 0)
 
-        # Mask
-        mask = np.zeros(self.max_length, dtype=bool)
-        mask[:L] = True
+        # Mask (match graph size)
+        mask = np.ones(L, dtype=bool)
+        if bb.residue_mask is not None:
+            mask[:L] = bb.residue_mask[:L]
 
         # Fixed residue mask
-        fixed = np.zeros(self.max_length, dtype=bool)
+        fixed = np.zeros(L, dtype=bool)
         if self.fixed_masks is not None and idx < len(self.fixed_masks):
             fm = self.fixed_masks[idx]
-            fixed[:min(len(fm), self.max_length)] = fm[:self.max_length]
+            fixed[:min(len(fm), L)] = fm[:L]
 
         return {
             'node_features': graph.node_features,
@@ -194,18 +196,20 @@ def create_dataloaders(
     num_workers: int = 0,
 ) -> Tuple[DataLoader, DataLoader]:
     """Create train and validation dataloaders."""
+    # Disable pin_memory (not supported on MPS) and use num_workers=0
+    # for graph data with variable sizes
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
         shuffle=True,
-        num_workers=num_workers,
-        pin_memory=True,
+        num_workers=0,
+        pin_memory=False,
     )
     val_loader = DataLoader(
         val_dataset,
         batch_size=batch_size,
         shuffle=False,
-        num_workers=num_workers,
-        pin_memory=True,
+        num_workers=0,
+        pin_memory=False,
     )
     return train_loader, val_loader

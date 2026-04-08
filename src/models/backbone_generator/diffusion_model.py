@@ -350,18 +350,20 @@ class SE3BackboneDiffusion(AbstractBackboneGenerator):
 
     def training_step(self, batch, batch_idx):
         """Training step: noise backbone, denoise, compute loss."""
-        clean_coords = batch['coords']  # (B, L, 4, 3)
+        clean_coords = batch['coords']  # (B, L_padded, 4, 3)
+        lengths = batch['length']  # (B,)
         constraint_mask = batch.get('constraint_mask')
         constraint_positions = batch.get('constraint_positions')
         template_coords = batch.get('template_coords')
 
-        B, L = clean_coords.shape[:2]
+        B = clean_coords.shape[0]
         device = clean_coords.device
 
-        total_loss = torch.tensor(0.0, device=device)
+        total_loss = torch.tensor(0.0, device=device, requires_grad=True)
 
         for i in range(B):
-            coords_i = clean_coords[i]  # (L, 4, 3)
+            L_i = int(lengths[i].item())
+            coords_i = clean_coords[i, :L_i]  # (L_i, 4, 3) — unpadded
 
             # Sample timestep
             t = self.schedule.sample_timestep(1, device=device)
@@ -371,19 +373,19 @@ class SE3BackboneDiffusion(AbstractBackboneGenerator):
 
             # If we have a template, noise from template (conditioned generation)
             if template_coords is not None:
-                base = template_coords[i]
+                base = template_coords[i, :L_i]
             else:
                 base = coords_i
 
             noise = torch.randn_like(coords_i) * sigma_t.view(1, 1, 1)
             noisy = base + noise
 
-            # Build graph from noisy backbone
+            # Build graph from noisy backbone (unpadded only)
             backbone = ProteinBackbone(coords=noisy.detach().cpu().numpy())
-            graph = backbone.to_graph(k=min(30, L - 1)).to(device)
+            graph = backbone.to_graph(k=min(30, L_i - 1)).to(device)
 
-            # Prepare inputs
-            mask_i = constraint_mask[i] if constraint_mask is not None else None
+            # Prepare inputs (unpadded)
+            mask_i = constraint_mask[i, :L_i] if constraint_mask is not None else None
             pos_i = constraint_positions[i] if constraint_positions is not None else None
 
             node_feat, edge_feat = self._prepare_inputs(
@@ -395,7 +397,7 @@ class SE3BackboneDiffusion(AbstractBackboneGenerator):
                 noisy, t, node_feat, graph.edge_index, edge_feat, mask_i,
             )
 
-            # MSE loss on predicted vs actual clean coords
+            # MSE loss on predicted vs actual clean coords (unpadded)
             recon_loss = nn.functional.mse_loss(predicted_clean, coords_i)
             total_loss = total_loss + recon_loss
 
@@ -421,20 +423,21 @@ class SE3BackboneDiffusion(AbstractBackboneGenerator):
         """Validation step."""
         # Same as training but with self.log('val_loss', ...)
         clean_coords = batch['coords']
+        lengths = batch['length']
         B = clean_coords.shape[0]
         device = clean_coords.device
 
         total_loss = torch.tensor(0.0, device=device)
         for i in range(B):
-            coords_i = clean_coords[i]
-            L = coords_i.shape[0]
+            L_i = int(lengths[i].item())
+            coords_i = clean_coords[i, :L_i]  # unpadded
             t = torch.tensor([0.5], device=device)  # fixed t for validation
             sigma_t = self.schedule.sigma_continuous(t)
             noise = torch.randn_like(coords_i) * sigma_t.view(1, 1, 1)
             noisy = coords_i + noise
 
             backbone = ProteinBackbone(coords=noisy.detach().cpu().numpy())
-            graph = backbone.to_graph(k=min(30, L - 1)).to(device)
+            graph = backbone.to_graph(k=min(30, L_i - 1)).to(device)
 
             node_feat, edge_feat = self._prepare_inputs(noisy, t, graph)
             predicted = self.denoise_step(
