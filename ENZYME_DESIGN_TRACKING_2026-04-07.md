@@ -85,15 +85,42 @@
 
 ---
 
-## Next Steps (Training & Experiments)
+## Data & Embeddings (2026-04-08)
 
-1. **Data collection**: Download PDB structures, extract catalytic sites from M-CSA
-2. **Supervised pretraining**: Train backbone diffusion on PDB structures
-3. **Rosetta data**: Generate scoring model training data via `scripts/data_prep/compute_rosetta_scores.py`
-4. **Train scoring surrogates**: Verify Pearson r > 0.8 vs held-out Rosetta scores
-5. **Train sequence MPNN**: Verify recovery rate > 30%
-6. **RL fine-tuning**: Run full optimization loop
-7. **TIM barrel case study**: Apply to a specific enzyme design task
+### PDB Download — COMPLETE
+- [x] Downloaded 41 PDB structures (0 failures)
+- [x] 2B3P (GFP), 9 TIM barrels, 5 serine proteases, 2 cysteine proteases
+- [x] 4 lipases, 6 glycosidases, 3 oxidoreductases, 2 kinases, 3 metalloenzymes
+- [x] 3 designed enzymes (KE07, KE70, RA95), 3 classic textbook enzymes
+- [x] `scripts/data_prep/download_pdbs.py` with full enzyme catalog
+
+### ESM-2 Embeddings — COMPLETE (MPS)
+- [x] 38 unique sequences embedded with esm2_t33_650M_UR50D (650M params)
+- [x] Per-residue (L, 1280) + mean-pooled (1280,) cached per sequence
+- [x] Total time: 10.3s on MPS
+- [x] Cache: `cache/esm_embeddings/` (38 entries)
+
+### Structural Features — COMPLETE (CPU)
+- [x] 41 structures processed: CA distances, contact maps, local geometry, SASA proxy, SS proxy
+- [x] All structures: 0 clashes, N-CA bonds ~1.46Å (ideal)
+- [x] Cache: `cache/structure_features/` (41 entries)
+
+### Catalytic Sites — PENDING
+- [ ] Extract catalytic residue info and create YAML constraint files
+
+### Rosetta Scoring — PENDING (tonight when CPU freed)
+- [ ] Run `scripts/data_prep/compute_rosetta_scores.py` on all 41 structures
+
+---
+
+## Next Steps
+
+1. **Catalytic sites**: Extract M-CSA catalytic residues → YAML constraints
+2. **Rosetta scores**: Generate scoring model training data (tonight)
+3. **Supervised pretraining**: Train backbone diffusion + sequence MPNN
+4. **Train scoring surrogates**: Verify Pearson r > 0.8 vs held-out Rosetta
+5. **RL fine-tuning**: Run full optimization loop
+6. **TIM barrel case study**: Apply to a specific enzyme design task
 
 ---
 
