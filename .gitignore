@@ -1,0 +1,80 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+
+# ---- Large files (never track) ----
+
+# Model weights and checkpoints
+checkpoints/
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+
+# Binary data files
+*.npy
+*.npz
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+
+# Protein structure files
+*.pdb
+*.cif
+*.mmcif
+
+# Compressed archives
+*.tar
+*.tar.gz
+*.zip
+
+# Large CSVs (data outputs)
+data/**/*.csv
+
+# ---- Directories with generated content ----
+
+# Cache (all pre-computed features)
+cache/
+
+# Results (experiment outputs)
+results/
+
+# Raw data directories (track structure via .gitkeep)
+data/pdb/
+data/rosetta_scores/
+data/proteinmpnn/
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+*.env
+
+# Logs
+*.log
+lightning_logs/
+wandb/

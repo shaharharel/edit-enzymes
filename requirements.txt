@@ -1,0 +1,31 @@
+# Data handling
+pandas
+numpy
+biopython
+pyyaml
+
+# Machine learning
+scikit-learn
+scipy
+
+# Deep learning
+torch
+pytorch-lightning
+torch-geometric
+
+# Protein ML
+fair-esm
+
+# Visualization
+matplotlib
+seaborn
+
+# Utilities
+tqdm
+
+# Jupyter
+jupyter
+ipykernel
+
+# Optional: structure tools (heavy dependency)
+# pyrosetta
