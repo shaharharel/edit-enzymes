@@ -109,13 +109,18 @@
 - [x] 37/41 YAML constraint files in `data/catalytic_sites/`
 - [x] 4 skipped due to chain/numbering mismatches
 
-### PROSS Labels — IN PROGRESS (MPS)
+### PROSS Labels — COMPLETE (MPS)
 - [x] `scripts/data_prep/compute_pross_labels.py` — ESM-2 pseudo-PSSM computation
-- [ ] Computing pseudo-PSSM via masked marginal probabilities (running on MPS)
-- [ ] Cache: `cache/pross_labels/`
+- [x] 38 sequences processed, cached at `cache/pross_labels/`
 
-### Rosetta Scoring — PENDING (tonight when CPU freed)
-- [ ] Run `scripts/data_prep/compute_rosetta_scores.py` on all 41 structures
+### Rosetta Scoring — COMPLETE (local)
+- [x] 41 structures scored in 90s, cached at `cache/rosetta_features/`
+
+### Mutation Scanning — IN PROGRESS (local)
+- [x] `scripts/data_prep/generate_mutation_scanning_data.py` — informative mutation sampling
+- [ ] ~6K mutations (150/protein × 41), running locally
+- [ ] Sampling strategy: 30% borderline PSSM, 25% active-site adjacent, 25% moderate conservation, 20% random
+- [ ] Cache: `cache/mutation_scanning/`
 
 ---
 
@@ -128,11 +133,11 @@
 - [ ] Download `ActiveSite_ckpt.pt` weights
 - [ ] Test on one of our catalytic constraint YAMLs
 
-### ProteinMPNN Wrapper — COMPLETE (code ready, needs install)
+### ProteinMPNN Wrapper — TESTED ON MPS
 - [x] `src/models/sequence_generator/proteinmpnn_wrapper.py`
-- [x] `ProteinMPNNWrapper` with fixed residue support and CLI/Python API modes
-- [ ] Install ProteinMPNN to `external/ProteinMPNN/`
-- [ ] Test sequence design on one of our PDB structures
+- [x] Installed to `external/ProteinMPNN/` with pretrained weights
+- [x] Tested on MPS: 1TIM → 30% recovery, 2B3P → 75% recovery (real generalization)
+- [x] No fine-tuning needed — fixed residue support built-in
 
 ### PROSS Scoring Components — COMPLETE
 - [x] `src/models/scoring/pross_scorer.py` — separated from raw Rosetta scoring
@@ -143,14 +148,26 @@
 
 ---
 
+## RL Strategy: Progressive Unfreezing (2026-04-09)
+
+| Experiment | Trainable | Purpose |
+|-----------|-----------|---------|
+| **A**: Frozen generators | Search params (T, temp, noise) | Baseline: search alone |
+| **B**: Unfreeze ProteinMPNN | Sequence weights | Does RL improve sequence design? |
+| **C**: Unfreeze RFdiffusion | Backbone weights | Does RL improve structure generation? |
+| **D**: Unfreeze both | All weights | Full end-to-end joint training |
+
+---
+
 ## Next Steps
 
-1. **Install foundation models**: RFdiffusion + ProteinMPNN to `external/`
-2. **Rosetta scores**: Generate scoring model training data (tonight, CPU)
-3. **PROSS labels from Sarel lab**: Request real PROSS outputs (ESM pseudo-PSSM is proxy)
-4. **Train scoring surrogates**: Rosetta scorers + PROSS scorers
-5. **End-to-end pipeline**: RFdiffusion → ProteinMPNN → scoring → RL
-6. **TIM barrel case study**: Apply to a specific enzyme design task
+1. **Mutation scanning data**: ~6K informative mutations (running, ~2-5 hours)
+2. **Train scoring surrogates**: On mutation ΔΔG data + PROSS labels
+3. **Install RFdiffusion**: On L4 GPU (when available) or MPS fork locally
+4. **PROSS labels from Sarel lab**: Request real outputs
+5. **End-to-end pipeline**: RFdiffusion → ProteinMPNN → scoring → reward
+6. **RL experiments A→D**: Progressive unfreezing ablation
+7. **TIM barrel case study**: First real enzyme design
 
 ---
 
@@ -168,3 +185,6 @@
 | 2026-04-08 | Use pretrained foundation models | 42 structures → memorization. RFdiffusion + ProteinMPNN trained on full PDB |
 | 2026-04-08 | Separate PROSS from Rosetta scoring | PROSS = phylogenetic + energetic + combinatorial; Rosetta = raw physics energy |
 | 2026-04-08 | Get real PROSS labels from Sarel lab | ESM-2 pseudo-PSSM is proxy; Sarel lab built PROSS and can provide real outputs |
+| 2026-04-09 | Smart mutation sampling, not exhaustive | Borderline PSSM + active-site adjacent + conservation-weighted avoids trivial negatives |
+| 2026-04-09 | RL progressive unfreezing (A→D) | Test frozen search → unfreeze seq → unfreeze backbone → both |
+| 2026-04-09 | No fine-tuning of RFdiffusion/ProteinMPNN initially | Use out-of-the-box; partial_T + fixed residues already handle our use case |
