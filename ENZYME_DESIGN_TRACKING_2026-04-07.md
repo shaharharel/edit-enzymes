@@ -105,21 +105,51 @@
 - [x] All structures: 0 clashes, N-CA bonds ~1.46Å (ideal)
 - [x] Cache: `cache/structure_features/` (41 entries)
 
-### Catalytic Sites — PENDING
-- [ ] Extract catalytic residue info and create YAML constraint files
+### Catalytic Sites — COMPLETE
+- [x] 37/41 YAML constraint files in `data/catalytic_sites/`
+- [x] 4 skipped due to chain/numbering mismatches
+
+### PROSS Labels — IN PROGRESS (MPS)
+- [x] `scripts/data_prep/compute_pross_labels.py` — ESM-2 pseudo-PSSM computation
+- [ ] Computing pseudo-PSSM via masked marginal probabilities (running on MPS)
+- [ ] Cache: `cache/pross_labels/`
 
 ### Rosetta Scoring — PENDING (tonight when CPU freed)
 - [ ] Run `scripts/data_prep/compute_rosetta_scores.py` on all 41 structures
 
 ---
 
+## Foundation Model Integration (2026-04-08)
+
+### RFdiffusion Wrapper — COMPLETE (code ready, needs install)
+- [x] `src/models/backbone_generator/rfdiffusion_wrapper.py`
+- [x] `RFdiffusionWrapper` with motif scaffolding and template-conditioned partial diffusion
+- [ ] Install RFdiffusion to `external/RFdiffusion/`
+- [ ] Download `ActiveSite_ckpt.pt` weights
+- [ ] Test on one of our catalytic constraint YAMLs
+
+### ProteinMPNN Wrapper — COMPLETE (code ready, needs install)
+- [x] `src/models/sequence_generator/proteinmpnn_wrapper.py`
+- [x] `ProteinMPNNWrapper` with fixed residue support and CLI/Python API modes
+- [ ] Install ProteinMPNN to `external/ProteinMPNN/`
+- [ ] Test sequence design on one of our PDB structures
+
+### PROSS Scoring Components — COMPLETE
+- [x] `src/models/scoring/pross_scorer.py` — separated from raw Rosetta scoring
+  - PSSMScorer: phylogenetic conservation from ESM embeddings
+  - PROSSDeltaGScorer: PROSS-style ΔΔG per mutation
+  - MutationCompatibilityScorer: DeepSets-style epistasis predictor
+  - PROSSCombinedScorer: integrates all three
+
+---
+
 ## Next Steps
 
-1. **Catalytic sites**: Extract M-CSA catalytic residues → YAML constraints
-2. **Rosetta scores**: Generate scoring model training data (tonight)
-3. **Supervised pretraining**: Train backbone diffusion + sequence MPNN
-4. **Train scoring surrogates**: Verify Pearson r > 0.8 vs held-out Rosetta
-5. **RL fine-tuning**: Run full optimization loop
+1. **Install foundation models**: RFdiffusion + ProteinMPNN to `external/`
+2. **Rosetta scores**: Generate scoring model training data (tonight, CPU)
+3. **PROSS labels from Sarel lab**: Request real PROSS outputs (ESM pseudo-PSSM is proxy)
+4. **Train scoring surrogates**: Rosetta scorers + PROSS scorers
+5. **End-to-end pipeline**: RFdiffusion → ProteinMPNN → scoring → RL
 6. **TIM barrel case study**: Apply to a specific enzyme design task
 
 ---
@@ -135,3 +165,6 @@
 | 2026-04-07 | Clamp displacement to ±10Å | Prevents explosion in untrained models |
 | 2026-04-08 | REINFORCE for backbone, PPO for sequence | Matches continuous vs discrete action spaces |
 | 2026-04-08 | Separated credit assignment | Backbone gets geometry reward, sequence gets stability/activity |
+| 2026-04-08 | Use pretrained foundation models | 42 structures → memorization. RFdiffusion + ProteinMPNN trained on full PDB |
+| 2026-04-08 | Separate PROSS from Rosetta scoring | PROSS = phylogenetic + energetic + combinatorial; Rosetta = raw physics energy |
+| 2026-04-08 | Get real PROSS labels from Sarel lab | ESM-2 pseudo-PSSM is proxy; Sarel lab built PROSS and can provide real outputs |

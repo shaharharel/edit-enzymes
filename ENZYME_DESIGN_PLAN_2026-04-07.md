@@ -14,30 +14,30 @@ The htFuncLib pipeline designs active-site libraries through sequential filters:
 
 ---
 
-## System Architecture
+## System Architecture (Updated 2026-04-08)
 
 ```
 CatalyticConstraint (active site geometry)
         │
         ▼
 ┌─────────────────────┐
-│  Backbone Generator  │  ← Conditioned diffusion on template backbone
-│  (small deviations   │  ← Catalytic geometry constraints
-│   from template)     │  ← Fold family (e.g. TIM barrel)
+│  Backbone Generator  │  ← RFdiffusion (pretrained, ActiveSite_ckpt.pt)
+│  (RFdiffusion or     │  ← Motif scaffolding for catalytic constraints
+│   custom EGNN/IPA)   │  ← Template-conditioned partial diffusion
 └─────────┬───────────┘
           │ ProteinBackbone (L, 4, 3)
           ▼
 ┌─────────────────────┐
-│  Sequence Generator  │  ← ProteinMPNN-style graph NN
-│  (fixed catalytic    │  ← Autoregressive decoding
-│   residues)          │
+│  Sequence Generator  │  ← ProteinMPNN (pretrained, v_48_010.pt)
+│  (pretrained MPNN    │  ← Fixed catalytic residues
+│   or custom model)   │  ← Fine-tunable for active-site design
 └─────────┬───────────┘
           │ amino acid sequence
           ▼
 ┌─────────────────────┐
-│  Scoring Models      │  ← Learned surrogates for Rosetta/PROSS
-│  (stability, packing,│  ← Fast + differentiable
-│   desolvation, act.) │
+│  Scoring Models      │  ← Rosetta surrogates (energy, packing)
+│  (Rosetta + PROSS    │  ← PROSS surrogates (PSSM, ΔΔG, compatibility)
+│   surrogates)        │  ← Fast + differentiable
 └─────────┬───────────┘
           │ multi-objective reward
           ▼
@@ -48,7 +48,30 @@ CatalyticConstraint (active site geometry)
 └─────────────────────┘
 ```
 
-**Starting point**: Conditioned backbone generator. We condition on an existing backbone template and search in a much smaller space around it, rather than generating from scratch. This drastically reduces the search space and improves reliability.
+### Foundation Model Strategy (2026-04-08 update)
+
+**Key insight**: 42 structures is NOT enough to train backbone or sequence generators from scratch. Our initial custom models achieve 100% recovery = memorization, not generalization.
+
+**Backbone Generator**: Use **RFdiffusion** (Baker lab) pretrained on entire PDB.
+- `ActiveSite_ckpt.pt` — designed for catalytic site scaffolding
+- RFdiffusion2 paper (Nature Methods 2025) does atom-level active site scaffolding
+- Partial diffusion from template controls deviation magnitude
+- Our custom EGNN/IPA models serve as research/ablation baselines
+
+**Sequence Generator**: Use **ProteinMPNN** (Dauparas et al.) pretrained on ~20K PDB structures.
+- `v_48_010.pt` — ~50% sequence recovery on held-out backbones
+- Fixed residue support for catalytic positions
+- Training code available for fine-tuning on active-site design
+- Our custom MPNN model serves as research baseline
+
+**Scoring Models**: Remain custom (project-specific training needed).
+- Rosetta surrogates: trained on Rosetta energy outputs
+- PROSS surrogates: trained on PROSS labels (from Sarel lab or ESM-2 pseudo-PSSM)
+  - PSSMScorer: phylogenetic conservation
+  - PROSSDeltaGScorer: stability per mutation
+  - MutationCompatibilityScorer: epistatic multi-mutation scoring
+
+**PROSS vs Rosetta distinction**: PROSS combines phylogenetic (PSSM) + energetic (Rosetta ΔΔG) + combinatorial signals. These are now separate scoring components, not conflated into one "stability_scorer".
 
 ---
 
