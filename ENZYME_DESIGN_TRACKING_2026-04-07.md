@@ -159,15 +159,36 @@
 
 ---
 
+## Pipeline Validation Results (2026-04-10)
+
+End-to-end pipeline tested on 3 benchmark enzymes (no RL yet, just generate + score):
+
+| Enzyme | PDB | Best Rosetta | RMSD Range | Recovery | Designs |
+|--------|-----|-------------|-----------|----------|---------|
+| KE07 (Kemp eliminase) | 2RKX | 381.0 REU | 1.48–2.23 Å | 9.2% | 120 |
+| RA95 (Retro-aldolase) | 4A29 | 356.9 REU | 1.55–2.58 Å | 4.5% | 120 |
+| GFP (htFuncLib) | 2B3P | 424.9 REU | 1.80–2.82 Å | 9.2% | 120 |
+
+**Issues identified:**
+- Surrogate scoring returns NaN (needs ESM embeddings of designed sequences, not just template)
+- Rosetta scores positive (native ~-85 REU) → designs need Rosetta relax step
+- Low sequence recovery → partial_T too high, backbone deviates too much
+
+### Scoring Surrogates — TRAINED
+- 10 models trained on 43,878 mutations across 41 proteins
+- Best: d_fa_dun r=0.947, d_fa_atr r=0.903, d_fa_sol r=0.900
+- Total ΔΔG: r=0.704
+
+---
+
 ## Next Steps
 
-1. **Mutation scanning data**: ~6K informative mutations (running, ~2-5 hours)
-2. **Train scoring surrogates**: On mutation ΔΔG data + PROSS labels
-3. **Install RFdiffusion**: On L4 GPU (when available) or MPS fork locally
-4. **PROSS labels from Sarel lab**: Request real outputs
-5. **End-to-end pipeline**: RFdiffusion → ProteinMPNN → scoring → reward
-6. **RL experiments A→D**: Progressive unfreezing ablation
-7. **TIM barrel case study**: First real enzyme design
+1. **Fix surrogate integration**: compute ESM embeddings on-the-fly for designed sequences
+2. **Add Rosetta relax**: relax designed structures before scoring
+3. **Lower partial_T**: try 5-10 instead of 15 to stay closer to template
+4. **RL implementation**: progressive unfreezing A→D
+5. **PROSS labels from Sarel lab**: request real outputs
+6. **Retrospective validation**: compare designs against known KE07→KE70 improvements
 
 ---
 
