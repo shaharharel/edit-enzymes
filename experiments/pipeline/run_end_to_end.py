@@ -235,20 +235,96 @@ def run_proteinmpnn(
         return sequences[:n_sequences]
 
 
-def score_with_surrogate(
-    features: dict,
-    surrogate_path: Optional[str] = None,
-) -> Dict[str, float]:
-    """Score a design with learned surrogates.
+_SURROGATE_CACHE = {}
 
-    Returns dict of scores. If no surrogate trained yet, returns placeholder.
+def _load_surrogate(checkpoint_path: str, input_dim: int = 1320):
+    """Load a trained surrogate model."""
+    if checkpoint_path in _SURROGATE_CACHE:
+        return _SURROGATE_CACHE[checkpoint_path]
+
+    from experiments.scoring.train_surrogates_on_mutations import SurrogateModel
+    model = SurrogateModel(input_dim, 1, [512, 256, 128])
+    state = torch.load(checkpoint_path, map_location='cpu', weights_only=False)
+    model.load_state_dict(state)
+    model.eval()
+    _SURROGATE_CACHE[checkpoint_path] = model
+    return model
+
+
+def score_with_surrogate(
+    backbone_pdb: str,
+    sequence: str,
+    surrogate_dir: Optional[str] = None,
+    esm_cache_dir: str = 'cache/esm_embeddings',
+) -> Dict[str, float]:
+    """Score a design with trained surrogates.
+
+    For each position, predicts the ΔΔG of the designed AA vs wild-type
+    using the trained energy term surrogates.
     """
-    # TODO: load trained surrogate and predict
-    # For now, return structural quality metrics
-    return {
-        'surrogate_stability': np.random.normal(0, 1),  # placeholder
-        'surrogate_packing': np.random.normal(0, 1),
-    }
+    if surrogate_dir is None or not Path(surrogate_dir).exists():
+        return {'surrogate_total_ddg': float('nan')}
+
+    surrogate_dir = Path(surrogate_dir)
+    results = {}
+
+    # Load surrogates
+    surrogate_names = ['total_ddg', 'd_fa_atr', 'd_fa_sol', 'd_fa_elec', 'd_fa_dun',
+                       'd_fa_rep', 'd_hbond_sc', 'd_hbond_bb_sc', 'd_rama_prepro']
+    models = {}
+    for name in surrogate_names:
+        ckpt = surrogate_dir / f'surrogate_{name}.pt'
+        if ckpt.exists():
+            try:
+                models[name] = _load_surrogate(str(ckpt))
+            except Exception:
+                pass
+
+    if not models:
+        return {'surrogate_total_ddg': float('nan')}
+
+    # Try to get ESM embedding for the sequence
+    try:
+        from src.utils.feature_cache import FeatureCache, get_sequence_hash
+        cache = FeatureCache(esm_cache_dir)
+        seq_hash = get_sequence_hash(sequence)
+        key = {'sequence_hash': seq_hash, 'model': 'esm2_t33_650M_UR50D'}
+        if cache.has(key):
+            esm_data = cache.load(key)
+            esm_emb = esm_data[:-1]  # (L, 1280)
+        else:
+            # No embedding cached — return NaN
+            return {'surrogate_total_ddg': float('nan')}
+    except Exception:
+        return {'surrogate_total_ddg': float('nan')}
+
+    # Score: average surrogate prediction across all positions
+    L = min(len(sequence), esm_emb.shape[0])
+    aa_to_idx = {aa: i for i, aa in enumerate('ACDEFGHIKLMNPQRSTVWY')}
+
+    with torch.no_grad():
+        for name, model in models.items():
+            preds = []
+            for pos in range(L):
+                aa = sequence[pos]
+                if aa not in aa_to_idx:
+                    continue
+                # Feature: ESM embedding + one-hot WT (zeros) + one-hot mut
+                pos_emb = esm_emb[pos]
+                if isinstance(pos_emb, torch.Tensor):
+                    pos_emb = pos_emb.float()
+                else:
+                    pos_emb = torch.tensor(pos_emb, dtype=torch.float32)
+                wt_oh = torch.zeros(20)
+                mut_oh = torch.zeros(20)
+                mut_oh[aa_to_idx[aa]] = 1
+                feat = torch.cat([pos_emb, wt_oh, mut_oh]).unsqueeze(0)
+                pred = model(feat).item()
+                preds.append(pred)
+            if preds:
+                results[f'surrogate_{name}'] = float(np.mean(preds))
+
+    return results
 
 
 def score_with_rosetta(pdb_path: str) -> Dict[str, float]:
@@ -303,12 +379,25 @@ def evaluate_design(
 
     # Sequence recovery vs template
     recovery = 0.0
+    catalytic_recovery = 0.0
     if template.sequence and sequence:
         matches = sum(1 for a, b in zip(sequence, template.sequence) if a == b)
         recovery = matches / min(len(sequence), len(template.sequence))
 
-    # Surrogate scores
-    surr_scores = score_with_surrogate({}, config.surrogate_checkpoint)
+        # Catalytic residue recovery (should be high — these are fixed)
+        cat_positions = [r.position_index for r in constraint.residues
+                        if r.position_index is not None]
+        if cat_positions:
+            cat_matches = sum(1 for p in cat_positions
+                            if p < len(sequence) and p < len(template.sequence)
+                            and sequence[p] == template.sequence[p])
+            catalytic_recovery = cat_matches / len(cat_positions)
+
+    # Surrogate scores (using trained models)
+    surr_scores = score_with_surrogate(
+        backbone_pdb, sequence,
+        surrogate_dir=config.surrogate_checkpoint,
+    )
 
     # Rosetta scores (ground truth)
     rosetta_scores = score_with_rosetta(backbone_pdb)
@@ -319,6 +408,7 @@ def evaluate_design(
         'seq_length': len(sequence),
         'template_rmsd': float(rmsd),
         'sequence_recovery': recovery,
+        'catalytic_recovery': catalytic_recovery,
         'clash_score': clash,
         'n_ca_bond_deviation': geom.get('n_ca_bond_deviation', 0),
         **surr_scores,
