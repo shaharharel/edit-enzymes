@@ -236,6 +236,37 @@ def run_proteinmpnn(
 
 
 _SURROGATE_CACHE = {}
+_ESM_MODEL = None
+_ESM_ALPHABET = None
+
+
+def _get_esm_model():
+    """Lazy-load ESM-2 model."""
+    global _ESM_MODEL, _ESM_ALPHABET
+    if _ESM_MODEL is None:
+        import esm
+        _ESM_MODEL, _ESM_ALPHABET = esm.pretrained.esm2_t33_650M_UR50D()
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        _ESM_MODEL = _ESM_MODEL.eval().to(device)
+        logger.info(f"Loaded ESM-2 on {device}")
+    return _ESM_MODEL, _ESM_ALPHABET
+
+
+@torch.no_grad()
+def _compute_esm_embedding(sequence: str) -> Optional[torch.Tensor]:
+    """Compute ESM-2 embedding for a sequence on-the-fly."""
+    try:
+        model, alphabet = _get_esm_model()
+        device = next(model.parameters()).device
+        batch_converter = alphabet.get_batch_converter()
+        _, _, tokens = batch_converter([("protein", sequence)])
+        tokens = tokens.to(device)
+        results = model(tokens, repr_layers=[33], return_contacts=False)
+        emb = results["representations"][33][0, 1:len(sequence)+1].cpu()  # (L, 1280)
+        return emb
+    except Exception as e:
+        logger.warning(f"ESM embedding failed: {e}")
+        return None
 
 def _load_surrogate(checkpoint_path: str, input_dim: int = 1320):
     """Load a trained surrogate model."""
@@ -283,7 +314,7 @@ def score_with_surrogate(
     if not models:
         return {'surrogate_total_ddg': float('nan')}
 
-    # Try to get ESM embedding for the sequence
+    # Get ESM embedding — compute on-the-fly if not cached
     try:
         from src.utils.feature_cache import FeatureCache, get_sequence_hash
         cache = FeatureCache(esm_cache_dir)
@@ -293,9 +324,17 @@ def score_with_surrogate(
             esm_data = cache.load(key)
             esm_emb = esm_data[:-1]  # (L, 1280)
         else:
-            # No embedding cached — return NaN
-            return {'surrogate_total_ddg': float('nan')}
-    except Exception:
+            # Compute ESM embedding on-the-fly
+            esm_emb = _compute_esm_embedding(sequence)
+            if esm_emb is None:
+                # Fall back to template embedding if available
+                return {'surrogate_total_ddg': float('nan')}
+            # Cache for reuse
+            cache_data = torch.cat([esm_emb, esm_emb.mean(dim=0, keepdim=True)], dim=0)
+            from src.utils.feature_cache import CacheMetadata
+            cache.save(key, cache_data, CacheMetadata(method='esm2_t33_650M_UR50D', source='designed'))
+    except Exception as e:
+        logger.debug(f"ESM embedding failed: {e}")
         return {'surrogate_total_ddg': float('nan')}
 
     # Score: average surrogate prediction across all positions
@@ -327,13 +366,32 @@ def score_with_surrogate(
     return results
 
 
-def score_with_rosetta(pdb_path: str) -> Dict[str, float]:
-    """Score a design with actual Rosetta (ground truth comparison)."""
+_PYROSETTA_INIT = False
+
+def score_with_rosetta(pdb_path: str, do_relax: bool = True) -> Dict[str, float]:
+    """Score a design with actual Rosetta (ground truth comparison).
+
+    If do_relax=True, performs FastRelax before scoring to resolve clashes
+    and get meaningful energy values (critical for RFdiffusion-generated backbones).
+    """
     try:
         import pyrosetta
-        pyrosetta.init('-mute all')
+        global _PYROSETTA_INIT
+        if not _PYROSETTA_INIT:
+            pyrosetta.init('-mute all -ex1 -ex2')
+            _PYROSETTA_INIT = True
+
         sfxn = pyrosetta.get_score_function(True)
         pose = pyrosetta.pose_from_pdb(pdb_path)
+
+        # Relax to resolve clashes from backbone generation
+        if do_relax:
+            from pyrosetta.rosetta.protocols.relax import FastRelax
+            relax = FastRelax()
+            relax.set_scorefxn(sfxn)
+            relax.max_iter(100)  # quick relax
+            relax.apply(pose)
+
         total = sfxn(pose)
 
         from pyrosetta.rosetta.core.scoring import ScoreType
@@ -399,8 +457,8 @@ def evaluate_design(
         surrogate_dir=config.surrogate_checkpoint,
     )
 
-    # Rosetta scores (ground truth)
-    rosetta_scores = score_with_rosetta(backbone_pdb)
+    # Rosetta scores (ground truth, with relax to resolve clashes)
+    rosetta_scores = score_with_rosetta(backbone_pdb, do_relax=True)
 
     return {
         'backbone_pdb': backbone_pdb,
