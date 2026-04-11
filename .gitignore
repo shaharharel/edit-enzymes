@@ -78,3 +78,4 @@ Thumbs.db
 *.log
 lightning_logs/
 wandb/
+external/

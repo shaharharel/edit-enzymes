@@ -24,6 +24,21 @@ We condition on an existing backbone template and search in a small space around
 
 ---
 
+## IMPORTANT: Always Check the Plan
+
+**Before implementing anything, read the plan files:**
+- `ENZYME_DESIGN_PLAN_2026-04-07.md` — Architecture, design decisions, component specs
+- `ENZYME_DESIGN_TRACKING_2026-04-07.md` — Progress, what's done, what's next
+
+**The plan specifies:**
+- REINFORCE for backbone generator (differentiable, not black-box)
+- PPO for sequence generator (discrete autoregressive actions)
+- Separated credit assignment (backbone gets geometry reward, sequence gets stability reward)
+- Rosetta energy as primary reward signal
+- Progressive unfreezing experiments A→D
+
+---
+
 ## Code Organization Rules
 
 ### Strict Source Code Policy
