@@ -63,13 +63,14 @@ def generate_designs_rfd3(
     n_designs: int = 8,
 ) -> List[str]:
     """Generate enzyme designs using RFD3 via Docker."""
-    output_dir = Path(output_dir)
+    output_dir = Path(output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
+    input_dir = Path(input_json).parent.resolve()
 
     # RFD3 uses num_designs from the config, default is 8
     cmd = [
         'sudo', 'docker', 'run', '--rm', '--gpus', 'all',
-        '-v', f'{Path(input_json).parent}:/input',
+        '-v', f'{input_dir}:/input',
         '-v', f'{output_dir}:/output',
         'rosettacommons/foundry:latest',
         'rfd3', 'design',
@@ -290,7 +291,9 @@ def main():
 
     # Copy template to output dir (Docker mount needs it in same dir as JSON)
     import shutil
-    shutil.copy(str(clean_template), str(output_dir / clean_template.name))
+    template_in_output = output_dir / Path(args.template).name
+    if str(clean_template) != str(template_in_output):
+        shutil.copy(str(clean_template), str(template_in_output))
 
     # Main loop
     all_scores = []
