@@ -137,19 +137,23 @@ def sample_sequence_with_logprob(
 
     # Now compute log-probability WITH gradient tracking
     # Forward pass through the model to get logits
+    # ProteinMPNN.forward needs randn for decoding order
+    randn_eval = torch.randn(1, L, device=device)
     log_probs = mpnn_model(X, S_sample, mask, chain_M * chain_M_pos,
-                            residue_idx, chain_encoding_all)
+                            residue_idx, chain_encoding_all, randn_eval)
 
+    # log_probs from ProteinMPNN.forward is already log-softmax: (1, L, 21)
     # Sum log-probs at designed positions
     designed_mask = chain_M_pos[0] > 0
-    total_log_prob = torch.tensor(0.0, device=device)
+    total_log_prob = torch.tensor(0.0, device=device, requires_grad=True)
 
-    if log_probs is not None and hasattr(log_probs, 'shape') and log_probs.dim() >= 2:
+    if log_probs is not None and log_probs.dim() >= 2:
+        lp_sum = torch.tensor(0.0, device=device)
         for pos in range(L):
             if designed_mask[pos]:
                 aa_idx = S_sample[0, pos]
-                lp = F.log_softmax(log_probs[0, pos], dim=-1)
-                total_log_prob = total_log_prob + lp[aa_idx]
+                lp_sum = lp_sum + log_probs[0, pos, aa_idx]
+        total_log_prob = lp_sum
 
     # Decode sequence
     alphabet = 'ACDEFGHIKLMNPQRSTVWYX'
@@ -158,19 +162,66 @@ def sample_sequence_with_logprob(
     return sequence, total_log_prob
 
 
-def score_with_rosetta_fast(pdb_path: str) -> float:
-    """Score with Rosetta (no relax). Returns negative score as reward."""
+_PYROSETTA_INIT = False
+_ROSETTA_SFXN = None
+
+def _init_pyrosetta():
+    """Initialize PyRosetta once."""
+    global _PYROSETTA_INIT, _ROSETTA_SFXN
+    if not _PYROSETTA_INIT:
+        import pyrosetta
+        pyrosetta.init('-mute all -ex1 -ex2')
+        _ROSETTA_SFXN = pyrosetta.get_score_function(True)
+        _PYROSETTA_INIT = True
+
+
+def score_design_with_rosetta(pdb_path: str, designed_sequence: str) -> float:
+    """Score a design: apply the designed sequence to the backbone, then score.
+
+    This is the correct scoring: the PDB has the backbone coordinates,
+    but the sequence might be different from what's in the PDB file.
+    We mutate the Rosetta pose to the designed sequence before scoring.
+
+    Returns negative Rosetta score (higher = better design).
+    """
     try:
         import pyrosetta
-        global _PYROSETTA_INIT
-        if '_PYROSETTA_INIT' not in globals() or not _PYROSETTA_INIT:
-            pyrosetta.init('-mute all')
-            _PYROSETTA_INIT = True
+        _init_pyrosetta()
 
-        sfxn = pyrosetta.get_score_function(True)
         pose = pyrosetta.pose_from_pdb(pdb_path)
-        score = sfxn(pose)
-        return -score  # negative because lower Rosetta = better = higher reward
+
+        # Apply designed sequence to the pose
+        aa3_map = {
+            'A': 'ALA', 'R': 'ARG', 'N': 'ASN', 'D': 'ASP', 'C': 'CYS',
+            'Q': 'GLN', 'E': 'GLU', 'G': 'GLY', 'H': 'HIS', 'I': 'ILE',
+            'L': 'LEU', 'K': 'LYS', 'M': 'MET', 'F': 'PHE', 'P': 'PRO',
+            'S': 'SER', 'T': 'THR', 'W': 'TRP', 'Y': 'TYR', 'V': 'VAL',
+        }
+
+        n_mutated = 0
+        for i, aa in enumerate(designed_sequence):
+            pos = i + 1  # PyRosetta 1-indexed
+            if pos > pose.total_residue():
+                break
+            current_aa = pose.residue(pos).name1()
+            if aa != current_aa and aa in aa3_map:
+                pyrosetta.rosetta.protocols.simple_moves.MutateResidue(
+                    pos, aa3_map[aa]
+                ).apply(pose)
+                n_mutated += 1
+
+        # Repack sidechains (fast, resolves steric clashes from mutations)
+        from pyrosetta.rosetta.core.pack.task import TaskFactory
+        from pyrosetta.rosetta.core.pack.task.operation import RestrictToRepacking
+        tf = TaskFactory()
+        tf.push_back(RestrictToRepacking())
+        packer = pyrosetta.rosetta.protocols.minimization_packing.PackRotamersMover(_ROSETTA_SFXN)
+        packer.task_factory(tf)
+        packer.apply(pose)
+
+        score = _ROSETTA_SFXN(pose)
+        return -score  # negate: lower Rosetta = better = higher reward
+
     except Exception as e:
         logger.warning(f"Rosetta scoring failed: {e}")
         return 0.0
@@ -242,8 +293,8 @@ class PPOTrainer:
                     temperature, self.device,
                 )
 
-                # Score with Rosetta (fast, no relax)
-                reward = score_with_rosetta_fast(backbone_pdb)
+                # Score with Rosetta: apply designed sequence to backbone, then score
+                reward = score_design_with_rosetta(backbone_pdb, sequence)
 
                 rollouts.append({
                     'sequence': sequence,
@@ -281,9 +332,11 @@ class PPOTrainer:
         for epoch in range(self.ppo_epochs):
             for i, rollout in enumerate(rollouts):
                 # Re-compute log-prob under CURRENT policy
+                # Use same backbone, just re-evaluate the log-prob of the same sequence
                 _, new_log_prob = sample_sequence_with_logprob(
                     self.mpnn_model, rollout['backbone_pdb'],
-                    [], 0.1, self.device,  # empty fixed for re-eval
+                    fixed_positions if hasattr(self, '_fixed_positions') else [],
+                    0.1, self.device,
                 )
 
                 # PPO clipped objective
