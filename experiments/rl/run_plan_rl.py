@@ -72,7 +72,7 @@ def build_components(args, template, constraint, device):
     # Sequence generator (our custom MPNN model)
     seq_config = MPNNConfig(
         node_input_dim=46, edge_input_dim=17,
-        hidden_dim=128, n_encoder_layers=3, n_decoder_layers=3,
+        hidden_dim=128, encoder_layers=3, decoder_layers=3,
     )
     seq_gen = ProteinMPNNModel(seq_config)
     seq_ckpt = Path('results/sequence/checkpoints')
@@ -83,8 +83,9 @@ def build_components(args, template, constraint, device):
         seq_gen.load_state_dict(ckpt['state_dict'], strict=False)
 
     # Scoring models (trained surrogates)
+    # RLTrainer._encode_design_features produces feature_dim=256 by default
     surr_dir = Path('results/surrogates')
-    input_dim = 64  # feature encoding dim from RLTrainer._encode_design_features
+    input_dim = 256  # must match feature_dim in RLTrainer
 
     stability = StabilityScorerMLP(input_dim=input_dim)
     packing = PackingScorerMLP(input_dim=input_dim)
@@ -105,7 +106,7 @@ def build_components(args, template, constraint, device):
     backbone_policy = BackbonePolicy(
         backbone_gen,
         learning_rate=args.lr,
-        baseline_lr=args.lr * 10,
+        baseline_learning_rate=args.lr * 10,
     )
 
     sequence_policy = SequencePolicy(
