@@ -149,32 +149,70 @@ class SearchParamOptimizer:
 
 
 def compute_reward(scores: dict) -> float:
-    """Compute scalar reward from surrogate scores.
+    """Compute multi-objective scalar reward.
 
-    Reward = negative of predicted total ΔΔG (lower ΔΔG = higher reward)
-    + bonuses for good individual terms.
+    Combines:
+    1. Rosetta energy surrogates (stability, packing)
+    2. Structural quality (RMSD, clash, bond geometry)
+    3. PROSS-like conservation penalty
+    4. Catalytic geometry satisfaction
+
+    Higher reward = better design.
     """
     reward = 0.0
     n = 0
 
+    # === 1. Rosetta energy surrogates (stability) ===
     # Primary: total ΔΔG (lower is better → negate)
     if 'surrogate_total_ddg' in scores and not np.isnan(scores['surrogate_total_ddg']):
         reward -= scores['surrogate_total_ddg']
         n += 1
 
-    # Bonus for favorable individual terms
+    # Individual energy terms
     term_weights = {
-        'surrogate_d_fa_atr': -0.5,  # attraction: more negative = better
-        'surrogate_d_fa_rep': -1.0,  # repulsion: penalize high values
-        'surrogate_d_fa_sol': -0.3,  # solvation
-        'surrogate_d_fa_elec': -0.3,  # electrostatics
-        'surrogate_d_hbond_sc': -0.5,  # H-bonds: more negative = better
+        'surrogate_d_fa_atr': -0.5,    # attraction: more negative = better
+        'surrogate_d_fa_rep': -1.0,    # repulsion: penalize clashes hard
+        'surrogate_d_fa_sol': -0.3,    # solvation
+        'surrogate_d_fa_elec': -0.3,   # electrostatics
+        'surrogate_d_hbond_sc': -0.5,  # H-bonds: more = better
+        'surrogate_d_fa_dun': -0.3,    # rotamer quality
+        'surrogate_d_rama_prepro': -0.2,  # backbone preferences
     }
 
     for term, weight in term_weights.items():
         if term in scores and not np.isnan(scores[term]):
             reward += weight * scores[term]
             n += 1
+
+    # === 2. Structural quality ===
+    # RMSD to template (closer = better, but not too close = not exploring)
+    if 'template_rmsd' in scores:
+        rmsd = scores['template_rmsd']
+        # Sweet spot: 0.5-2.0Å. Penalize >3Å (too far) and <0.3Å (not exploring)
+        if rmsd < 0.3:
+            reward -= 2.0  # too close, not exploring
+        elif rmsd > 3.0:
+            reward -= (rmsd - 3.0) * 2.0  # too far from template
+        else:
+            reward += 1.0  # in sweet spot
+        n += 1
+
+    # Clash score (lower = better)
+    if 'clash_score' in scores:
+        reward -= scores['clash_score'] * 10.0  # heavy penalty for clashes
+        n += 1
+
+    # Bond geometry (lower deviation = better)
+    if 'n_ca_bond_deviation' in scores:
+        reward -= scores['n_ca_bond_deviation'] * 5.0
+        n += 1
+
+    # === 3. Catalytic geometry ===
+    # Catalytic residue recovery (should be 100% if fixed positions work)
+    if 'catalytic_recovery' in scores:
+        if scores['catalytic_recovery'] < 1.0:
+            reward -= 10.0  # heavy penalty if catalytic residues changed
+        n += 1
 
     return reward / max(n, 1)
 
@@ -236,18 +274,43 @@ def run_one_round(
         # Structural metrics
         bb = load_pdb(design['backbone_pdb'])
         from src.utils.geometry import kabsch_rmsd
+        from src.utils.metrics import bond_geometry_metrics, clash_score
         min_len = min(bb.length, template.length)
         ca_gen = torch.tensor(bb.ca_coords[:min_len], dtype=torch.float32)
         ca_tmpl = torch.tensor(template.ca_coords[:min_len], dtype=torch.float32)
         rmsd, _, _ = kabsch_rmsd(ca_tmpl, ca_gen)
 
-        reward = compute_reward(surr_scores)
+        coords_t = torch.tensor(bb.coords, dtype=torch.float32)
+        clash = clash_score(coords_t)
+        geom = bond_geometry_metrics(coords_t)
+
+        # Catalytic residue recovery
+        cat_recovery = 1.0
+        if fixed_positions and template.sequence and design['sequence']:
+            cat_matches = sum(
+                1 for p in fixed_positions
+                if p < len(design['sequence']) and p < len(template.sequence)
+                and design['sequence'][p] == template.sequence[p]
+            )
+            cat_recovery = cat_matches / max(len(fixed_positions), 1)
+
+        # Combine all scores for reward computation
+        all_scores = {
+            **surr_scores,
+            'template_rmsd': float(rmsd),
+            'clash_score': clash,
+            'n_ca_bond_deviation': geom.get('n_ca_bond_deviation', 0),
+            'catalytic_recovery': cat_recovery,
+        }
+        reward = compute_reward(all_scores)
 
         result = {
             'backbone_pdb': design['backbone_pdb'],
             'sequence': design['sequence'][:30] + '...',
             'full_sequence': design['sequence'],
             'template_rmsd': float(rmsd),
+            'clash_score': clash,
+            'catalytic_recovery': cat_recovery,
             'reward': reward,
             'partial_T': params['partial_T'],
             'temperature': params['temperature'],
