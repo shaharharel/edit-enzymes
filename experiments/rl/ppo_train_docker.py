@@ -66,14 +66,40 @@ def load_cif(path):
             aa.set_annotation(ann, np.zeros(len(aa), dtype=bool))
     return aa
 
+from atomworks.ml.transforms.atom_array import CopyAnnotation, ComputeAtomToTokenMap
+from atomworks.ml.transforms.base import ConvertToTorch
+from atomworks.ml.transforms.diffusion.batch_structures import BatchStructuresForDiffusionNoising
+from atomworks.ml.transforms.diffusion.edm import SampleEDMNoise
+from rfd3.transforms.pipelines import AggregateFeaturesLikeAF3WithoutMSA
+
+# Diffusion noising transforms (inference pipeline skips these, training needs them)
+noise_transforms = [
+    ComputeAtomToTokenMap(),
+    ConvertToTorch(keys=["encoded", "feats"]),
+    CopyAnnotation(annotation_to_copy="coord", new_annotation="coord_to_be_noised"),
+    AggregateFeaturesLikeAF3WithoutMSA(),
+    BatchStructuresForDiffusionNoising(batch_size=1),
+    SampleEDMNoise(sigma_data=16.0, diffusion_batch_size=1),
+]
+
 pipeline_data = []
 for cif_path, advantage in cif_advantages:
     if not os.path.exists(cif_path): continue
     try:
         aa = load_cif(cif_path)
         pr = engine.pipeline({"atom_array": aa, "example_id": os.path.basename(cif_path)})
+        # Apply diffusion noising (creates coord_atom_lvl_to_be_noised, noise, t, feats)
+        for t in noise_transforms:
+            try:
+                pr = t(pr)
+            except:
+                pass
         pr = engine.trainer.fabric.to_device(pr)
-        pipeline_data.append((pr, advantage))
+        # Verify required keys exist
+        if "coord_atom_lvl_to_be_noised" in pr and "feats" in pr:
+            pipeline_data.append((pr, advantage))
+        else:
+            print(f"Missing keys for {cif_path}: {[k for k in ['coord_atom_lvl_to_be_noised','feats','noise','t'] if k not in pr]}", flush=True)
     except Exception as e:
         print(f"Skip {cif_path}: {e}", flush=True)
 
